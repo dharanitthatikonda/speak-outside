@@ -23,6 +23,8 @@ let aiHandover = false;
 let nesthamId = "";
 const aiReplyIndexes = {};
 let waitingTimer = null;
+let currentTopic = "stress";
+let peerHandoverStarted = false;
 const blockedWords = ["asshole", "bastard", "bitch", "bullshit", "fuck", "idiot", "motherfucker", "shit", "stupid"];
 
 socket.on("connect", () => {
@@ -40,7 +42,9 @@ socket.on("connect_error", () => {
 findMatchBtn.addEventListener("click", () => {
   aiMode = false;
   aiHandover = false;
+  peerHandoverStarted = false;
   const topic = topicSelect.value;
+  currentTopic = topic;
   myLang = langSelect.value;
 
   socket.emit("join_queue", { topic, lang: myLang });
@@ -54,8 +58,10 @@ aiCompanionBtn.addEventListener("click", () => {
   currentRoomId = "ai-companion";
   aiReplyCount = 0;
   aiHandover = false;
+  peerHandoverStarted = false;
   Object.keys(aiReplyIndexes).forEach((key) => delete aiReplyIndexes[key]);
   nesthamId = `Nestham_${Math.floor(Math.random() * 900) + 100}`;
+  currentTopic = topicSelect.value;
   myLang = langSelect.value;
   statusEl.textContent = "Aasara AI · listening privately";
   setupPanel.style.display = "none";
@@ -77,8 +83,8 @@ socket.on("waiting", ({ topic }) => {
 
 socket.on("matched", ({ roomId, partnerAnonId, topic }) => {
   clearTimeout(waitingTimer);
-  if (aiMode && currentRoomId === "nestham-fallback") return;
   currentRoomId = roomId;
+  aiMode = false;
   statusEl.textContent = `Chatting anonymously · ${topic}`;
 
   setupPanel.style.display = "none";
@@ -86,7 +92,7 @@ socket.on("matched", ({ roomId, partnerAnonId, topic }) => {
   chatInputEl.style.display = "flex";
   leaveBtn.hidden = false;
 
-  addSystemMessage(`You're now connected with ${partnerAnonId}. Say hello — you're both anonymous.`);
+  addSystemMessage(`You're now connected with ${partnerAnonId}. You can continue the conversation here.`);
 });
 
 socket.on("receive_message", ({ from, original, translated, lang }) => {
@@ -134,6 +140,19 @@ function enterNesthamFallback(topic) {
     text: "You do not have to carry this alone. Tell me what happened, and I will listen.",
     senderLabel: "Nestham",
   });
+}
+
+function startPeerMatch(topic) {
+  if (peerHandoverStarted) return;
+  peerHandoverStarted = true;
+  currentTopic = topic;
+  aiMode = false;
+  currentRoomId = null;
+  statusEl.textContent = "Finding someone who understands...";
+  addSystemMessage("Aasara AI is handing you to a real peer now. Finding someone with a similar experience...");
+  socket.emit("join_queue", { topic, lang: myLang });
+  clearTimeout(waitingTimer);
+  waitingTimer = window.setTimeout(() => enterNesthamFallback(topic), 1500);
 }
 
 function sendMessage() {
@@ -264,6 +283,7 @@ function processAiReplyQueue() {
       if (aiReplyCount === 2) {
         aiHandover = true;
         addSystemMessage(`I am connecting you to ${nesthamId} who faced the same issue.`);
+            startPeerMatch(currentTopic);
       }
     }
     aiReplyInProgress = false;
