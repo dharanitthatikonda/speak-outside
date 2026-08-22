@@ -37,15 +37,15 @@ aiCompanionBtn.addEventListener("click", () => {
   aiMode = true;
   currentRoomId = "ai-companion";
   myLang = langSelect.value;
-  statusEl.textContent = "AI listening space · private on this device";
+  statusEl.textContent = "My Soul · private on this device";
   setupPanel.style.display = "none";
   messagesEl.style.display = "flex";
   chatInputEl.style.display = "flex";
-  addSystemMessage("You are talking with Khulke AI. Share what is real for you; it will listen and help you reflect. It is not a human or a replacement for professional care.");
+  addSystemMessage("You are talking with My Soul. Share what is real for you; it will listen and help you reflect. It is not a human or a replacement for professional care.");
   addMessage({
     isMe: false,
     text: createAiGreeting(moodSelect.value),
-    senderLabel: "Khulke AI",
+    senderLabel: "My Soul",
   });
   addQuickPrompts();
 });
@@ -89,7 +89,7 @@ function sendMessage() {
     messageInput.value = "";
     sendBtn.disabled = true;
     window.setTimeout(() => {
-      addMessage({ isMe: false, text: createAiReply(text), senderLabel: "Khulke AI" });
+      addMessage({ isMe: false, text: createAiReply(text), senderLabel: "My Soul" });
       sendBtn.disabled = false;
       messageInput.focus();
     }, 650);
