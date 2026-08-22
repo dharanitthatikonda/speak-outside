@@ -15,6 +15,7 @@ const moodSelect = document.getElementById("moodSelect");
 let currentRoomId = null;
 let myLang = "en";
 let aiMode = false;
+const blockedWords = ["asshole", "bastard", "bitch", "bullshit", "fuck", "idiot", "motherfucker", "shit", "stupid"];
 
 socket.on("connect", () => {
   statusEl.textContent = "Connected";
@@ -80,9 +81,19 @@ socket.on("partner_left", () => {
   chatInputEl.style.display = "none";
 });
 
+socket.on("message_blocked", ({ reason }) => {
+  addSystemMessage(reason);
+});
+
 function sendMessage() {
   const text = messageInput.value.trim();
   if (!text || !currentRoomId) return;
+
+  if (hasBlockedLanguage(text)) {
+    addSystemMessage("Please keep this space respectful. Try saying what you feel without abusive language.");
+    messageInput.value = "";
+    return;
+  }
 
   if (aiMode) {
     addMessage({ isMe: true, text, senderLabel: "You" });
@@ -155,7 +166,7 @@ function createAiReply(text) {
   if (/suicide|kill myself|self harm|hurt myself|end my life/.test(lowerText)) {
     return "I’m really sorry you’re carrying this. Please move away from anything you could use to hurt yourself and contact local emergency services or a crisis helpline now. If someone you trust is nearby, tell them plainly: “I might not be safe alone.”";
   }
-  if (/anxious|anxiety|panic|worried|stress/.test(lowerText)) {
+  if (/anxious|anxiety|panic|worried|stress|stressed|overwhelmed|burnt out|burned out/.test(lowerText)) {
     return "That sounds heavy, and it makes sense that your mind feels on high alert. Let’s slow it down together. What feels strongest right now: the thoughts, the physical sensations, or what you fear might happen?";
   }
   if (/sad|lonely|alone|cry|empty/.test(lowerText)) {
@@ -168,6 +179,15 @@ function createAiReply(text) {
     return "I’m glad there is a little more room to breathe. What helped, even if it was something small?";
   }
   return "I hear you. Take your time. Can you tell me a little more about what that has been like for you?";
+}
+
+function hasBlockedLanguage(text) {
+  const normalized = text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/(.)\1+/g, "$1")
+    .replace(/\s+/g, " ");
+  return blockedWords.some((word) => new RegExp(`\\b${word}\\b`, "i").test(normalized));
 }
 
 function createAiGreeting(mood) {

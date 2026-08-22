@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const { translateText } = require("./services/translate");
 const { generateAnonId } = require("./utils/anonId");
+const { hasBlockedLanguage } = require("./utils/contentFilter");
 
 const app = express();
 app.use(cors());
@@ -87,6 +88,13 @@ io.on("connection", (socket) => {
   socket.on("send_message", async ({ roomId, text }) => {
     const sender = userMeta[socket.id];
     if (!sender || !activeRooms[roomId]) return;
+
+    if (!text || hasBlockedLanguage(text)) {
+      socket.emit("message_blocked", {
+        reason: "Please keep this supportive space respectful. Try saying what you feel without abusive language.",
+      });
+      return;
+    }
 
     const partnerSocketId = activeRooms[roomId].users.find(
       (id) => id !== socket.id
