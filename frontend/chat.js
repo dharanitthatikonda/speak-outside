@@ -22,6 +22,7 @@ let aiReplyCount = 0;
 let aiHandover = false;
 let nesthamId = "";
 const aiReplyIndexes = {};
+let waitingTimer = null;
 const blockedWords = ["asshole", "bastard", "bitch", "bullshit", "fuck", "idiot", "motherfucker", "shit", "stupid"];
 
 socket.on("connect", () => {
@@ -38,11 +39,14 @@ socket.on("connect_error", () => {
 
 findMatchBtn.addEventListener("click", () => {
   aiMode = false;
+  aiHandover = false;
   const topic = topicSelect.value;
   myLang = langSelect.value;
 
   socket.emit("join_queue", { topic, lang: myLang });
   setupPanel.innerHTML = `<h2>Looking for someone to talk to...</h2><p style="color:var(--muted); font-size:0.9rem;">This won't take long. You're anonymous the whole time.</p>`;
+  clearTimeout(waitingTimer);
+  waitingTimer = window.setTimeout(() => enterNesthamFallback(topic), 4000);
 });
 
 aiCompanionBtn.addEventListener("click", () => {
@@ -72,6 +76,8 @@ socket.on("waiting", ({ topic }) => {
 });
 
 socket.on("matched", ({ roomId, partnerAnonId, topic }) => {
+  clearTimeout(waitingTimer);
+  if (aiMode && currentRoomId === "nestham-fallback") return;
   currentRoomId = roomId;
   statusEl.textContent = `Chatting anonymously · ${topic}`;
 
@@ -110,6 +116,25 @@ socket.on("partner_left", () => {
 socket.on("message_blocked", ({ reason }) => {
   addSystemMessage(reason);
 });
+
+function enterNesthamFallback(topic) {
+  socket.emit("leave_chat");
+  aiMode = true;
+  aiHandover = true;
+  currentRoomId = "nestham-fallback";
+  nesthamId = `Nestham_${Math.floor(Math.random() * 900) + 100}`;
+  statusEl.textContent = `${nesthamId} · here with you`;
+  setupPanel.style.display = "none";
+  messagesEl.style.display = "flex";
+  chatInputEl.style.display = "flex";
+  leaveBtn.hidden = false;
+  addSystemMessage(`No peer is available right now, so ${nesthamId} is here to listen about ${topic}.`);
+  addMessage({
+    isMe: false,
+    text: "You do not have to carry this alone. Tell me what happened, and I will listen.",
+    senderLabel: "Nestham",
+  });
+}
 
 function sendMessage() {
   const text = messageInput.value.trim();
