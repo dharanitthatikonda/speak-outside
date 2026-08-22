@@ -244,7 +244,7 @@ function processAiReplyQueue() {
     aiReplyInProgress = false;
     messageInput.focus();
     processAiReplyQueue();
-  }, 350);
+  }, 100);
 }
 
 function extractKeyword(text) {
