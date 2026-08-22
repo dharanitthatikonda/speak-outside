@@ -15,6 +15,8 @@ const moodSelect = document.getElementById("moodSelect");
 let currentRoomId = null;
 let myLang = "en";
 let aiMode = false;
+const aiReplyQueue = [];
+let aiReplyInProgress = false;
 const blockedWords = ["asshole", "bastard", "bitch", "bullshit", "fuck", "idiot", "motherfucker", "shit", "stupid"];
 
 socket.on("connect", () => {
@@ -98,12 +100,8 @@ function sendMessage() {
   if (aiMode) {
     addMessage({ isMe: true, text, senderLabel: "You" });
     messageInput.value = "";
-    sendBtn.disabled = true;
-    window.setTimeout(() => {
-      addMessage({ isMe: false, text: createAiReply(text), senderLabel: "My Soul" });
-      sendBtn.disabled = false;
-      messageInput.focus();
-    }, 650);
+    aiReplyQueue.push(text);
+    processAiReplyQueue();
     return;
   }
 
@@ -179,6 +177,19 @@ function createAiReply(text) {
     return "I’m glad there is a little more room to breathe. What helped, even if it was something small?";
   }
   return "I hear you. Take your time. Can you tell me a little more about what that has been like for you?";
+}
+
+function processAiReplyQueue() {
+  if (aiReplyInProgress || aiReplyQueue.length === 0) return;
+
+  aiReplyInProgress = true;
+  const nextText = aiReplyQueue.shift();
+  window.setTimeout(() => {
+    addMessage({ isMe: false, text: createAiReply(nextText), senderLabel: "My Soul" });
+    aiReplyInProgress = false;
+    messageInput.focus();
+    processAiReplyQueue();
+  }, 650);
 }
 
 function hasBlockedLanguage(text) {
