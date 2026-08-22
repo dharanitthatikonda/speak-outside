@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="style.css">
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
-<body>
+<body class="chat-page-body">
 
 <nav>
   <div class="logo"><span class="dot"></span> Khulke Bolo</div>
@@ -43,13 +43,16 @@
       </select>
 
       <button class="btn-primary" id="findMatchBtn" style="cursor:pointer; border:none;">Find Someone to Talk To</button>
+      <div class="setup-divider"><span>or</span></div>
+      <button class="ai-entry-btn" id="aiCompanionBtn" type="button">Talk to Khulke AI <span aria-hidden="true">&#8599;</span></button>
+      <p class="ai-disclaimer">A warm AI companion for reflection, not a medical professional.</p>
     </div>
 
     <!-- Chat screen: hidden until matched -->
     <div class="messages" id="messages" style="display:none;"></div>
 
     <div class="chat-input" id="chatInput" style="display:none;">
-      <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
+      <input type="text" id="messageInput" placeholder="Type what is on your mind..." autocomplete="off">
       <button id="sendBtn">Send</button>
     </div>
 

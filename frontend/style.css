@@ -220,6 +220,11 @@ footer{
 .landing-page nav ul li a:hover{color:var(--ink);}
 .landing-page .nav-cta{background:var(--ink); color:var(--paper); border-radius:4px; padding:11px 16px;}
 .landing-page .hero{max-width:1180px; padding:82px 30px 100px; text-align:left; display:grid; grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr); gap:72px; align-items:center;}
+.landing-page .hero-copy{min-width:0;}
+.landing-page .hero-visual{position:relative; min-width:0; padding:10px 0 0 26px;}
+.landing-page .hero-photo{height:215px; margin:0 34px 0 0; position:relative; overflow:hidden; border-radius:4px; background:#b9dce0;}
+.landing-page .hero-photo img{width:100%; height:100%; display:block; object-fit:cover; object-position:center 42%; filter:saturate(.78) contrast(.96);}
+.landing-page .photo-label{position:absolute; left:16px; bottom:14px; padding:7px 10px; background:rgba(23,35,41,.86); color:#fff; font-size:.7rem; letter-spacing:.05em; text-transform:uppercase;}
 .landing-page .badge{background:transparent; border:0; color:var(--teal); padding:0; margin-bottom:22px; font-size:.75rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase;}
 .landing-page .badge-mark{display:inline-block; width:8px; height:8px; margin-right:8px; border-radius:50%; background:var(--coral);}
 .landing-page .hero h1{max-width:680px; color:var(--ink); background:none; -webkit-text-fill-color:initial; font-family:Georgia, 'Times New Roman', serif; font-size:clamp(3.2rem,6vw,5.8rem); font-weight:400; line-height:.98; letter-spacing:-.03em; margin-bottom:26px;}
@@ -230,6 +235,7 @@ footer{
 .landing-page .btn-secondary{border-color:var(--line); color:var(--ink); border-radius:4px; padding:14px 19px;}
 .landing-page .btn-secondary:hover{background:rgba(255,255,255,.55);}
 .landing-page .chat-preview{max-width:none; margin:0; background:#fffdf8; border:1px solid var(--line); border-radius:4px; padding:28px; box-shadow:18px 18px 0 rgba(231,121,91,.18); transform:rotate(1.3deg);}
+.landing-page .hero-visual .chat-preview{margin:-42px 0 0 48px; position:relative;}
 .landing-page .chat-preview .head{border-bottom:1px solid var(--line);}
 .landing-page .avatar{background:var(--teal); color:#fff; border-radius:4px;}
 .landing-page .chat-name{color:var(--ink);}
@@ -257,15 +263,28 @@ footer{
 .landing-page .cta-final h2,.landing-page .cta-final p{color:var(--paper); max-width:600px;}
 .landing-page .cta-final p{opacity:.72;}
 .landing-page footer{border-top:1px solid var(--line); color:var(--ink-soft);}
+.chat-page-body .chat-header .status{color:#9edee6;}
+.setup-divider{width:100%; max-width:280px; display:flex; align-items:center; gap:10px; color:var(--muted); font-size:.75rem;}
+.setup-divider::before,.setup-divider::after{content:""; height:1px; flex:1; background:var(--border);}
+.ai-entry-btn{width:100%; max-width:280px; padding:12px 16px; border:1px solid #f08a63; border-radius:10px; background:transparent; color:#f08a63; font-size:.95rem; font-weight:700; cursor:pointer;}
+.ai-entry-btn:hover{background:rgba(240,138,99,.1);}
+.ai-disclaimer{max-width:280px; color:var(--muted); font-size:.72rem; line-height:1.4; text-align:center;}
+.quick-prompts{display:flex; flex-wrap:wrap; gap:6px; align-self:stretch;}
+.quick-prompts button{border:1px solid rgba(158,222,230,.34); border-radius:14px; background:transparent; color:#9edee6; cursor:pointer; font-size:.72rem; padding:6px 9px;}
+.quick-prompts button:hover{background:rgba(158,222,230,.1);}
+.chat-input button:disabled{cursor:wait; opacity:.55;}
 @media (max-width:900px){
   .landing-page .hero{grid-template-columns:1fr; gap:48px; padding-top:58px;}
-  .landing-page .chat-preview{max-width:560px;}
+  .landing-page .hero-visual{max-width:620px; width:100%; margin:0 auto;}
 }
 @media (max-width:500px){
   .landing-page nav{padding:20px 18px;}
   .landing-page .logo-note{display:none;}
   .landing-page .hero{padding:48px 18px 70px;}
   .landing-page .hero h1{font-size:3.25rem;}
+  .landing-page .hero-visual{padding-left:0;}
+  .landing-page .hero-photo{margin-right:18px; height:180px;}
+  .landing-page .hero-visual .chat-preview{margin:-32px 0 0 18px; padding:20px;}
   .landing-page .hero-buttons{align-items:stretch; flex-direction:column;}
   .landing-page .hero-buttons a{text-align:center;}
   .landing-page section{padding:68px 18px;}
