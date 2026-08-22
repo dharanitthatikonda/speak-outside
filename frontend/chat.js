@@ -21,6 +21,7 @@ let aiReplyInProgress = false;
 let aiReplyCount = 0;
 let aiHandover = false;
 let nesthamId = "";
+const aiReplyIndexes = {};
 const blockedWords = ["asshole", "bastard", "bitch", "bullshit", "fuck", "idiot", "motherfucker", "shit", "stupid"];
 
 socket.on("connect", () => {
@@ -49,6 +50,7 @@ aiCompanionBtn.addEventListener("click", () => {
   currentRoomId = "ai-companion";
   aiReplyCount = 0;
   aiHandover = false;
+  Object.keys(aiReplyIndexes).forEach((key) => delete aiReplyIndexes[key]);
   nesthamId = `Nestham_${Math.floor(Math.random() * 900) + 100}`;
   myLang = langSelect.value;
   statusEl.textContent = "Aasara AI · listening privately";
@@ -146,6 +148,7 @@ function leaveConversation() {
   aiReplyInProgress = false;
   aiReplyCount = 0;
   aiHandover = false;
+  Object.keys(aiReplyIndexes).forEach((key) => delete aiReplyIndexes[key]);
   messagesEl.replaceChildren();
   messageInput.value = "";
   setupPanel.innerHTML = `<h2>Let's set you up anonymously</h2><p style="color:var(--muted); font-size:0.9rem;">No sign-up. No real name. Just pick a topic and your language.</p><select id="topicSelect"><option value="stress">Stress</option><option value="anxiety">Anxiety</option><option value="body-image">Body Image</option><option value="addiction">Addiction</option><option value="general">General Wellbeing</option></select><select id="langSelect"><option value="hi">Hindi</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="en">English</option></select><select id="moodSelect"><option value="unsure">I am not sure how I feel</option><option value="overwhelmed">Overwhelmed</option><option value="anxious">Anxious</option><option value="low">Low or lonely</option><option value="angry">Angry or frustrated</option><option value="okay">Okay, but I want to reflect</option></select><button class="btn-primary" id="findMatchBtn" style="cursor:pointer; border:none;">Find Someone to Talk To</button><div class="setup-divider"><span>or</span></div><button class="ai-entry-btn" id="aiCompanionBtn" type="button">Talk to Aasara AI <span aria-hidden="true">&#8599;</span></button><p class="ai-disclaimer">Aasara AI listens first, then can connect you with Nestham. It is not a therapist or emergency service.</p>`;
@@ -204,17 +207,20 @@ function createAiReply(text) {
   }
   const keyword = extractKeyword(lowerText);
   const replies = {
-    exam: "Exams can feel enormous. What feels hardest: preparation, pressure, or fear of disappointing someone?",
-    stress: "Stress is taking up space. What would make today feel 1% lighter?",
-    family: "Family concerns can hurt deeply. Which conversation keeps returning to your mind?",
-    sleep: "Sleep and emotions affect each other. What usually keeps your mind awake?",
-    anxiety: "Anxiety can make tomorrow feel immediate. What thought is asking for your attention now?",
-    lonely: "Feeling lonely can be exhausting. Who feels safest to reach out to today?",
-    anger: "Anger often protects something important. What felt unfair or crossed your boundary?",
-    sad: "That sadness matters. What happened today that made the feeling stronger?",
+    exam: ["Exams feel heavy. Is preparation or pressure harder today?", "Your exam worry matters. What part feels least manageable right now?"],
+    stress: ["Stress is taking up space. What could make today 1% lighter?", "Your stress sounds real. Which task feels heaviest right now?"],
+    family: ["Family concerns can hurt deeply. Which conversation keeps returning?", "Your family situation matters. What do you wish they understood?"],
+    sleep: ["Sleep and emotions connect. What usually keeps your mind awake?", "Your sleep sounds disrupted. What was on your mind last night?"],
+    anxiety: ["Anxiety can make tomorrow feel immediate. What thought needs attention now?", "Your anxiety is speaking loudly. What is it predicting will happen?"],
+    lonely: ["Feeling lonely is exhausting. Who feels safest to contact today?", "Your loneliness deserves care. When does it feel strongest?"],
+    anger: ["Anger can protect something important. What felt unfair today?", "Your frustration makes sense. Which boundary was crossed?"],
+    sad: ["That sadness matters. What made the feeling stronger today?", "Your sadness deserves space. What do you need most right now?"],
   };
   if (replies[keyword]) {
-    return replies[keyword];
+    const options = replies[keyword];
+    const index = aiReplyIndexes[keyword] || 0;
+    aiReplyIndexes[keyword] = (index + 1) % options.length;
+    return options[index];
   }
   return `Tell me more about ${keyword}.`;
 }
@@ -243,11 +249,11 @@ function processAiReplyQueue() {
 
 function extractKeyword(text) {
   const keywordRules = [
-    ["exam", /exam|test|study|college|school/],
-    ["family", /family|mother|father|parent|brother|sister/],
-    ["sleep", /sleep|insomnia|awake|night/],
-    ["anxiety", /anxious|anxiety|panic|worried|worry/],
-    ["stress", /stress|stressed|pressure|overwhelmed|burnt out|burned out/],
+    ["exam", /exam|test|study|college|school|pariksha/],
+    ["family", /family|mother|father|parent|brother|sister|parivar/],
+    ["sleep", /sleep|insomnia|awake|night|neend/],
+    ["anxiety", /anxious|anxiety|panic|worried|worry|chinta/],
+    ["stress", /stress|stressed|pressure|overwhelmed|burnt out|burned out|tanav/],
     ["lonely", /lonely|alone|isolated/],
     ["anger", /angry|anger|frustrated|mad/],
     ["sad", /sad|cry|empty|low/],
