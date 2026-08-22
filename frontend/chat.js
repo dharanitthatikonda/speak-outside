@@ -18,6 +18,9 @@ let myLang = "en";
 let aiMode = false;
 const aiReplyQueue = [];
 let aiReplyInProgress = false;
+let aiReplyCount = 0;
+let aiHandover = false;
+let nesthamId = "";
 const blockedWords = ["asshole", "bastard", "bitch", "bullshit", "fuck", "idiot", "motherfucker", "shit", "stupid"];
 
 socket.on("connect", () => {
@@ -44,17 +47,20 @@ findMatchBtn.addEventListener("click", () => {
 aiCompanionBtn.addEventListener("click", () => {
   aiMode = true;
   currentRoomId = "ai-companion";
+  aiReplyCount = 0;
+  aiHandover = false;
+  nesthamId = `Nestham_${Math.floor(Math.random() * 900) + 100}`;
   myLang = langSelect.value;
-  statusEl.textContent = "My Soul · private on this device";
+  statusEl.textContent = "Aasara AI · listening privately";
   setupPanel.style.display = "none";
   messagesEl.style.display = "flex";
   chatInputEl.style.display = "flex";
   leaveBtn.hidden = false;
-  addSystemMessage("You are talking with My Soul. Share what is real for you; it will listen and help you reflect. It is not a human or a replacement for professional care.");
+  addSystemMessage("You are talking with Aasara AI. Share what is real; after two replies, it can connect you with Nestham.");
   addMessage({
     isMe: false,
     text: createAiGreeting(moodSelect.value),
-    senderLabel: "My Soul",
+    senderLabel: "Aasara AI",
   });
   addQuickPrompts();
 });
@@ -116,7 +122,7 @@ function sendMessage() {
   if (aiMode) {
     addMessage({ isMe: true, text, senderLabel: "You" });
     messageInput.value = "";
-    aiReplyQueue.push(text);
+    aiReplyQueue.push({ text, from: aiHandover ? "Nestham" : "Aasara AI" });
     processAiReplyQueue();
     return;
   }
@@ -138,9 +144,11 @@ function leaveConversation() {
   aiMode = false;
   aiReplyQueue.length = 0;
   aiReplyInProgress = false;
+  aiReplyCount = 0;
+  aiHandover = false;
   messagesEl.replaceChildren();
   messageInput.value = "";
-  setupPanel.innerHTML = `<h2>Let's set you up anonymously</h2><p style="color:var(--muted); font-size:0.9rem;">No sign-up. No real name. Just pick a topic and your language.</p><select id="topicSelect"><option value="stress">Stress</option><option value="anxiety">Anxiety</option><option value="body-image">Body Image</option><option value="addiction">Addiction</option><option value="general">General Wellbeing</option></select><select id="langSelect"><option value="hi">Hindi</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="en">English</option></select><select id="moodSelect"><option value="unsure">I am not sure how I feel</option><option value="overwhelmed">Overwhelmed</option><option value="anxious">Anxious</option><option value="low">Low or lonely</option><option value="angry">Angry or frustrated</option><option value="okay">Okay, but I want to reflect</option></select><button class="btn-primary" id="findMatchBtn" style="cursor:pointer; border:none;">Find Someone to Talk To</button><div class="setup-divider"><span>or</span></div><button class="ai-entry-btn" id="aiCompanionBtn" type="button">Talk to My Soul <span aria-hidden="true">&#8599;</span></button><p class="ai-disclaimer">Share freely with an AI listener. It is not a human, therapist, or emergency service.</p>`;
+  setupPanel.innerHTML = `<h2>Let's set you up anonymously</h2><p style="color:var(--muted); font-size:0.9rem;">No sign-up. No real name. Just pick a topic and your language.</p><select id="topicSelect"><option value="stress">Stress</option><option value="anxiety">Anxiety</option><option value="body-image">Body Image</option><option value="addiction">Addiction</option><option value="general">General Wellbeing</option></select><select id="langSelect"><option value="hi">Hindi</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="en">English</option></select><select id="moodSelect"><option value="unsure">I am not sure how I feel</option><option value="overwhelmed">Overwhelmed</option><option value="anxious">Anxious</option><option value="low">Low or lonely</option><option value="angry">Angry or frustrated</option><option value="okay">Okay, but I want to reflect</option></select><button class="btn-primary" id="findMatchBtn" style="cursor:pointer; border:none;">Find Someone to Talk To</button><div class="setup-divider"><span>or</span></div><button class="ai-entry-btn" id="aiCompanionBtn" type="button">Talk to Aasara AI <span aria-hidden="true">&#8599;</span></button><p class="ai-disclaimer">Aasara AI listens first, then can connect you with Nestham. It is not a therapist or emergency service.</p>`;
   window.location.reload();
 }
 
@@ -192,34 +200,67 @@ function addQuickPrompts() {
 function createAiReply(text) {
   const lowerText = text.toLowerCase();
   if (/suicide|kill myself|self harm|hurt myself|end my life/.test(lowerText)) {
-    return "I’m really sorry you’re carrying this. Please move away from anything you could use to hurt yourself and contact local emergency services or a crisis helpline now. If someone you trust is nearby, tell them plainly: “I might not be safe alone.”";
+    return "Please move away from danger and contact emergency services or someone trusted now. You deserve immediate support.";
   }
-  if (/anxious|anxiety|panic|worried|stress|stressed|overwhelmed|burnt out|burned out/.test(lowerText)) {
-    return "That sounds heavy, and it makes sense that your mind feels on high alert. Let’s slow it down together. What feels strongest right now: the thoughts, the physical sensations, or what you fear might happen?";
+  const keyword = extractKeyword(lowerText);
+  const replies = {
+    exam: "Exams can feel enormous. What feels hardest: preparation, pressure, or fear of disappointing someone?",
+    stress: "Stress is taking up space. What would make today feel 1% lighter?",
+    family: "Family concerns can hurt deeply. Which conversation keeps returning to your mind?",
+    sleep: "Sleep and emotions affect each other. What usually keeps your mind awake?",
+    anxiety: "Anxiety can make tomorrow feel immediate. What thought is asking for your attention now?",
+    lonely: "Feeling lonely can be exhausting. Who feels safest to reach out to today?",
+    anger: "Anger often protects something important. What felt unfair or crossed your boundary?",
+    sad: "That sadness matters. What happened today that made the feeling stronger?",
+  };
+  if (replies[keyword]) {
+    return replies[keyword];
   }
-  if (/sad|lonely|alone|cry|empty/.test(lowerText)) {
-    return "I’m glad you said it out loud. You do not have to solve everything in this moment. Do you want to name what happened today, or would you rather sit with the feeling for a minute?";
-  }
-  if (/angry|frustrated|mad/.test(lowerText)) {
-    return "It sounds like something crossed a line for you. Before we unpack it, take one slow breath and tell me: what part felt most unfair?";
-  }
-  if (/thank|better|okay|good/.test(lowerText)) {
-    return "I’m glad there is a little more room to breathe. What helped, even if it was something small?";
-  }
-  return "I hear you. Take your time. Can you tell me a little more about what that has been like for you?";
+  return `Tell me more about ${keyword}.`;
 }
 
 function processAiReplyQueue() {
   if (aiReplyInProgress || aiReplyQueue.length === 0) return;
 
   aiReplyInProgress = true;
-  const nextText = aiReplyQueue.shift();
+  const nextMessage = aiReplyQueue.shift();
   window.setTimeout(() => {
-    addMessage({ isMe: false, text: createAiReply(nextText), senderLabel: "My Soul" });
+    if (aiHandover || nextMessage.from === "Nestham") {
+      addMessage({ isMe: false, text: createNesthamReply(nextMessage.text), senderLabel: "Nestham" });
+    } else {
+      aiReplyCount += 1;
+      addMessage({ isMe: false, text: createAiReply(nextMessage.text), senderLabel: "Aasara AI" });
+      if (aiReplyCount === 2) {
+        aiHandover = true;
+        addSystemMessage(`I am connecting you to ${nesthamId} who faced the same issue.`);
+      }
+    }
     aiReplyInProgress = false;
     messageInput.focus();
     processAiReplyQueue();
   }, 350);
+}
+
+function extractKeyword(text) {
+  const keywordRules = [
+    ["exam", /exam|test|study|college|school/],
+    ["family", /family|mother|father|parent|brother|sister/],
+    ["sleep", /sleep|insomnia|awake|night/],
+    ["anxiety", /anxious|anxiety|panic|worried|worry/],
+    ["stress", /stress|stressed|pressure|overwhelmed|burnt out|burned out/],
+    ["lonely", /lonely|alone|isolated/],
+    ["anger", /angry|anger|frustrated|mad/],
+    ["sad", /sad|cry|empty|low/],
+  ];
+  const match = keywordRules.find(([, pattern]) => pattern.test(text));
+  return match ? match[0] : "your situation";
+}
+
+function createNesthamReply(text) {
+  const keyword = extractKeyword(text.toLowerCase());
+  return keyword === "your situation"
+    ? "I faced something similar. You can share at your own pace; I am listening."
+    : `I faced ${keyword} too. You are not alone; what helped you get through today?`;
 }
 
 function hasBlockedLanguage(text) {
@@ -233,12 +274,12 @@ function hasBlockedLanguage(text) {
 
 function createAiGreeting(mood) {
   const greetings = {
-    overwhelmed: "It sounds like a lot is landing on you at once. We can take one small piece at a time. What feels most urgent?",
-    anxious: "You do not have to make the anxiety disappear before you speak. What was happening just before it got stronger?",
-    low: "I’m glad you came here instead of holding this completely alone. Would you like to talk about today, or the feeling underneath it?",
-    angry: "You’re allowed to arrive here with anger. I won’t judge it. What happened that still feels stuck in you?",
-    okay: "Sometimes a quiet check-in is useful even when things are okay. What has been on your mind lately?",
-    unsure: "You do not need to have the right label for your feeling. Start anywhere: what have you noticed in your mind or body today?",
+    overwhelmed: "A lot is landing at once. What feels most urgent?",
+    anxious: "What happened just before your anxiety grew stronger?",
+    low: "Would you like to share what happened today or the feeling underneath?",
+    angry: "What happened that still feels stuck in you?",
+    okay: "What has been on your mind lately?",
+    unsure: "What have you noticed in your mind or body today?",
   };
   return greetings[mood] || greetings.unsure;
 }
