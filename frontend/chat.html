@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anonymous Chat — Khulke Bolo</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span class="dot"></span> Khulke Bolo</div>
+  <a href="index.html" class="nav-cta">Home</a>
+</nav>
+
+<div class="chat-page">
+  <div class="chat-window">
+
+    <div class="chat-header">
+      <div class="logo" style="font-size:1rem;"><span class="dot"></span> Anonymous Chat</div>
+      <div class="status" id="status">Not connected</div>
+    </div>
+
+    <!-- Setup screen: pick topic + language -->
+    <div class="setup-panel" id="setupPanel">
+      <h2>Let's set you up anonymously</h2>
+      <p style="color:var(--muted); font-size:0.9rem;">No sign-up. No real name. Just pick a topic and your language.</p>
+
+      <select id="topicSelect">
+        <option value="stress">Stress</option>
+        <option value="anxiety">Anxiety</option>
+        <option value="body-image">Body Image</option>
+        <option value="addiction">Addiction</option>
+        <option value="general">General Wellbeing</option>
+      </select>
+
+      <select id="langSelect">
+        <option value="hi">Hindi</option>
+        <option value="ta">Tamil</option>
+        <option value="te">Telugu</option>
+        <option value="en">English</option>
+      </select>
+
+      <button class="btn-primary" id="findMatchBtn" style="cursor:pointer; border:none;">Find Someone to Talk To</button>
+    </div>
+
+    <!-- Chat screen: hidden until matched -->
+    <div class="messages" id="messages" style="display:none;"></div>
+
+    <div class="chat-input" id="chatInput" style="display:none;">
+      <input type="text" id="messageInput" placeholder="Type your message..." autocomplete="off">
+      <button id="sendBtn">Send</button>
+    </div>
+
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="chat.js"></script>
+</body>
+</html>
