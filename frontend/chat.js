@@ -46,7 +46,7 @@ findMatchBtn.addEventListener("click", () => {
   socket.emit("join_queue", { topic, lang: myLang });
   setupPanel.innerHTML = `<h2>Looking for someone to talk to...</h2><p style="color:var(--muted); font-size:0.9rem;">This won't take long. You're anonymous the whole time.</p>`;
   clearTimeout(waitingTimer);
-  waitingTimer = window.setTimeout(() => enterNesthamFallback(topic), 4000);
+  waitingTimer = window.setTimeout(() => enterNesthamFallback(topic), 1500);
 });
 
 aiCompanionBtn.addEventListener("click", () => {
@@ -232,14 +232,14 @@ function createAiReply(text) {
   }
   const keyword = extractKeyword(lowerText);
   const replies = {
-    exam: ["Exams feel heavy. Is preparation or pressure harder today?", "Your exam worry matters. What part feels least manageable right now?"],
-    stress: ["Stress is taking up space. What could make today 1% lighter?", "Your stress sounds real. Which task feels heaviest right now?"],
-    family: ["Family concerns can hurt deeply. Which conversation keeps returning?", "Your family situation matters. What do you wish they understood?"],
-    sleep: ["Sleep and emotions connect. What usually keeps your mind awake?", "Your sleep sounds disrupted. What was on your mind last night?"],
-    anxiety: ["Anxiety can make tomorrow feel immediate. What thought needs attention now?", "Your anxiety is speaking loudly. What is it predicting will happen?"],
-    lonely: ["Feeling lonely is exhausting. Who feels safest to contact today?", "Your loneliness deserves care. When does it feel strongest?"],
-    anger: ["Anger can protect something important. What felt unfair today?", "Your frustration makes sense. Which boundary was crossed?"],
-    sad: ["That sadness matters. What made the feeling stronger today?", "Your sadness deserves space. What do you need most right now?"],
+    exam: ["Exams feel heavy. Is preparation or pressure harder today?", "Your exam worry matters. What part feels least manageable right now?", "Exam pressure can feel lonely. What would help you feel prepared?", "One exam does not define you. What is your next small study step?"],
+    stress: ["Stress is taking up space. What could make today 1% lighter?", "Your stress sounds real. Which task feels heaviest right now?", "Let’s make the stress smaller. What can wait until tomorrow?", "You have been carrying a lot. Where do you notice stress in your body?"],
+    family: ["Family concerns can hurt deeply. Which conversation keeps returning?", "Your family situation matters. What do you wish they understood?", "Family tension can drain you. What boundary would give you breathing room?", "You can love family and still feel hurt. What happened most recently?"],
+    sleep: ["Sleep and emotions connect. What usually keeps your mind awake?", "Your sleep sounds disrupted. What was on your mind last night?", "Rest is difficult when thoughts keep moving. What helps you settle?", "Your tiredness matters. What would a gentler night look like?"],
+    anxiety: ["Anxiety can make tomorrow feel immediate. What thought needs attention now?", "Your anxiety is speaking loudly. What is it predicting will happen?", "Let’s stay with this moment. What feels safe around you right now?", "Anxiety is uncomfortable, not a failure. What would reassure you today?"],
+    lonely: ["Feeling lonely is exhausting. Who feels safest to contact today?", "Your loneliness deserves care. When does it feel strongest?", "You reached out, and that matters. What kind of company would help?", "Being alone can feel heavy. What is one comforting thing nearby?"],
+    anger: ["Anger can protect something important. What felt unfair today?", "Your frustration makes sense. Which boundary was crossed?", "There is information inside anger. What did you need in that moment?", "Before reacting, let’s pause. What outcome would feel respectful?"],
+    sad: ["That sadness matters. What made the feeling stronger today?", "Your sadness deserves space. What do you need most right now?", "You do not have to hide feeling low. What would comfort look like?", "This is a difficult moment, not your whole story. What happened?"],
   };
   if (replies[keyword]) {
     const options = replies[keyword];
