@@ -10,6 +10,7 @@ const findMatchBtn = document.getElementById("findMatchBtn");
 const aiCompanionBtn = document.getElementById("aiCompanionBtn");
 const topicSelect = document.getElementById("topicSelect");
 const langSelect = document.getElementById("langSelect");
+const moodSelect = document.getElementById("moodSelect");
 
 let currentRoomId = null;
 let myLang = "en";
@@ -36,14 +37,14 @@ aiCompanionBtn.addEventListener("click", () => {
   aiMode = true;
   currentRoomId = "ai-companion";
   myLang = langSelect.value;
-  statusEl.textContent = "Khulke AI · here with you";
+  statusEl.textContent = "AI listening space · private on this device";
   setupPanel.style.display = "none";
   messagesEl.style.display = "flex";
   chatInputEl.style.display = "flex";
-  addSystemMessage("You are talking with Khulke AI. It is a private space for reflection, not a replacement for professional care.");
+  addSystemMessage("You are talking with Khulke AI. Share what is real for you; it will listen and help you reflect. It is not a human or a replacement for professional care.");
   addMessage({
     isMe: false,
-    text: "Hey, I’m here with you. What has been taking up the most space in your mind today?",
+    text: createAiGreeting(moodSelect.value),
     senderLabel: "Khulke AI",
   });
   addQuickPrompts();
@@ -155,10 +156,10 @@ function createAiReply(text) {
     return "I’m really sorry you’re carrying this. Please move away from anything you could use to hurt yourself and contact local emergency services or a crisis helpline now. If someone you trust is nearby, tell them plainly: “I might not be safe alone.”";
   }
   if (/anxious|anxiety|panic|worried|stress/.test(lowerText)) {
-    return "That sounds heavy, and it makes sense that your mind feels on high alert. What feels strongest right now: the thoughts, the physical sensations, or what you fear might happen?";
+    return "That sounds heavy, and it makes sense that your mind feels on high alert. Let’s slow it down together. What feels strongest right now: the thoughts, the physical sensations, or what you fear might happen?";
   }
   if (/sad|lonely|alone|cry|empty/.test(lowerText)) {
-    return "I’m glad you said it out loud. You do not have to solve everything in this moment. Would it help to name what happened today, or would you rather sit with the feeling for a minute?";
+    return "I’m glad you said it out loud. You do not have to solve everything in this moment. Do you want to name what happened today, or would you rather sit with the feeling for a minute?";
   }
   if (/angry|frustrated|mad/.test(lowerText)) {
     return "It sounds like something crossed a line for you. Before we unpack it, take one slow breath and tell me: what part felt most unfair?";
@@ -167,4 +168,16 @@ function createAiReply(text) {
     return "I’m glad there is a little more room to breathe. What helped, even if it was something small?";
   }
   return "I hear you. Take your time. Can you tell me a little more about what that has been like for you?";
+}
+
+function createAiGreeting(mood) {
+  const greetings = {
+    overwhelmed: "It sounds like a lot is landing on you at once. We can take one small piece at a time. What feels most urgent?",
+    anxious: "You do not have to make the anxiety disappear before you speak. What was happening just before it got stronger?",
+    low: "I’m glad you came here instead of holding this completely alone. Would you like to talk about today, or the feeling underneath it?",
+    angry: "You’re allowed to arrive here with anger. I won’t judge it. What happened that still feels stuck in you?",
+    okay: "Sometimes a quiet check-in is useful even when things are okay. What has been on your mind lately?",
+    unsure: "You do not need to have the right label for your feeling. Start anywhere: what have you noticed in your mind or body today?",
+  };
+  return greetings[mood] || greetings.unsure;
 }

@@ -42,14 +42,23 @@
         <option value="en">English</option>
       </select>
 
+      <select id="moodSelect" aria-label="How are you feeling right now?">
+        <option value="unsure">I am not sure how I feel</option>
+        <option value="overwhelmed">Overwhelmed</option>
+        <option value="anxious">Anxious</option>
+        <option value="low">Low or lonely</option>
+        <option value="angry">Angry or frustrated</option>
+        <option value="okay">Okay, but I want to reflect</option>
+      </select>
+
       <button class="btn-primary" id="findMatchBtn" style="cursor:pointer; border:none;">Find Someone to Talk To</button>
       <div class="setup-divider"><span>or</span></div>
-      <button class="ai-entry-btn" id="aiCompanionBtn" type="button">Talk to Khulke AI <span aria-hidden="true">&#8599;</span></button>
-      <p class="ai-disclaimer">A warm AI companion for reflection, not a medical professional.</p>
+      <button class="ai-entry-btn" id="aiCompanionBtn" type="button">Open your AI listening space <span aria-hidden="true">&#8599;</span></button>
+      <p class="ai-disclaimer">Share freely with an AI listener. It is not a human, therapist, or emergency service.</p>
     </div>
 
     <!-- Chat screen: hidden until matched -->
-    <div class="messages" id="messages" style="display:none;"></div>
+    <div class="messages" id="messages" aria-live="polite" style="display:none;"></div>
 
     <div class="chat-input" id="chatInput" style="display:none;">
       <input type="text" id="messageInput" placeholder="Type what is on your mind..." autocomplete="off">
