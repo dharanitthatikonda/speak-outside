@@ -11,6 +11,7 @@ const aiCompanionBtn = document.getElementById("aiCompanionBtn");
 const topicSelect = document.getElementById("topicSelect");
 const langSelect = document.getElementById("langSelect");
 const moodSelect = document.getElementById("moodSelect");
+const leaveBtn = document.getElementById("leaveBtn");
 
 let currentRoomId = null;
 let myLang = "en";
@@ -48,6 +49,7 @@ aiCompanionBtn.addEventListener("click", () => {
   setupPanel.style.display = "none";
   messagesEl.style.display = "flex";
   chatInputEl.style.display = "flex";
+  leaveBtn.hidden = false;
   addSystemMessage("You are talking with My Soul. Share what is real for you; it will listen and help you reflect. It is not a human or a replacement for professional care.");
   addMessage({
     isMe: false,
@@ -68,6 +70,7 @@ socket.on("matched", ({ roomId, partnerAnonId, topic }) => {
   setupPanel.style.display = "none";
   messagesEl.style.display = "flex";
   chatInputEl.style.display = "flex";
+  leaveBtn.hidden = false;
 
   addSystemMessage(`You're now connected with ${partnerAnonId}. Say hello — you're both anonymous.`);
 });
@@ -126,6 +129,20 @@ sendBtn.addEventListener("click", sendMessage);
 messageInput.addEventListener("keypress", (e) => {
   if (e.key === "Enter") sendMessage();
 });
+
+leaveBtn.addEventListener("click", leaveConversation);
+
+function leaveConversation() {
+  if (!aiMode) socket.emit("leave_chat");
+  currentRoomId = null;
+  aiMode = false;
+  aiReplyQueue.length = 0;
+  aiReplyInProgress = false;
+  messagesEl.replaceChildren();
+  messageInput.value = "";
+  setupPanel.innerHTML = `<h2>Let's set you up anonymously</h2><p style="color:var(--muted); font-size:0.9rem;">No sign-up. No real name. Just pick a topic and your language.</p><select id="topicSelect"><option value="stress">Stress</option><option value="anxiety">Anxiety</option><option value="body-image">Body Image</option><option value="addiction">Addiction</option><option value="general">General Wellbeing</option></select><select id="langSelect"><option value="hi">Hindi</option><option value="ta">Tamil</option><option value="te">Telugu</option><option value="en">English</option></select><select id="moodSelect"><option value="unsure">I am not sure how I feel</option><option value="overwhelmed">Overwhelmed</option><option value="anxious">Anxious</option><option value="low">Low or lonely</option><option value="angry">Angry or frustrated</option><option value="okay">Okay, but I want to reflect</option></select><button class="btn-primary" id="findMatchBtn" style="cursor:pointer; border:none;">Find Someone to Talk To</button><div class="setup-divider"><span>or</span></div><button class="ai-entry-btn" id="aiCompanionBtn" type="button">Talk to My Soul <span aria-hidden="true">&#8599;</span></button><p class="ai-disclaimer">Share freely with an AI listener. It is not a human, therapist, or emergency service.</p>`;
+  window.location.reload();
+}
 
 function addMessage({ isMe, text, original, senderLabel }) {
   const row = document.createElement("div");
