@@ -20,7 +20,8 @@ async function translateText(text, sourceLang, targetLang) {
           source: sourceLang,
           target: targetLang,
           format: "text",
-        }
+        },
+        { timeout: 5000 }
       );
       return res.data.data.translations[0].translatedText;
     }
@@ -35,7 +36,7 @@ async function translateText(text, sourceLang, targetLang) {
         format: "text",
         api_key: process.env.LIBRETRANSLATE_API_KEY || undefined,
       },
-      { headers: { "Content-Type": "application/json" } }
+      { headers: { "Content-Type": "application/json" }, timeout: 5000 }
     );
     return res.data.translatedText;
   } catch (err) {

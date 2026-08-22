@@ -27,6 +27,10 @@ socket.on("disconnect", () => {
   statusEl.textContent = "Disconnected";
 });
 
+socket.on("connect_error", () => {
+  statusEl.textContent = "Unable to connect to chat server";
+});
+
 findMatchBtn.addEventListener("click", () => {
   aiMode = false;
   const topic = topicSelect.value;
@@ -76,6 +80,15 @@ socket.on("receive_message", ({ from, original, translated, lang }) => {
     original: isMe ? null : original,
     senderLabel: isMe ? "You" : from,
   });
+});
+
+socket.on("message_translation", ({ original, translated }) => {
+  const messageBubble = [...messagesEl.querySelectorAll(".msg-row.them")]
+    .reverse()
+    .find((row) => row.querySelector(".msg-bubble")?.textContent === original);
+  if (messageBubble) {
+    messageBubble.querySelector(".msg-bubble").textContent = translated;
+  }
 });
 
 socket.on("partner_left", () => {
@@ -189,7 +202,7 @@ function processAiReplyQueue() {
     aiReplyInProgress = false;
     messageInput.focus();
     processAiReplyQueue();
-  }, 650);
+  }, 350);
 }
 
 function hasBlockedLanguage(text) {

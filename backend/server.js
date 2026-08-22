@@ -102,8 +102,6 @@ io.on("connection", (socket) => {
     const receiver = userMeta[partnerSocketId];
     if (!receiver) return;
 
-    const translated = await translateText(text, sender.lang, receiver.lang);
-
     // Sender sees their own original message echoed back (for confirmation)
     io.to(socket.id).emit("receive_message", {
       from: "me",
@@ -112,9 +110,20 @@ io.on("connection", (socket) => {
       lang: sender.lang,
     });
 
-    // Receiver gets the translated version
+    // Deliver immediately; a slow translation service must never make chat feel broken.
     io.to(partnerSocketId).emit("receive_message", {
       from: sender.anonId,
+      original: text,
+      translated: text,
+      lang: receiver.lang,
+    });
+
+    if (sender.lang === receiver.lang) return;
+
+    const translated = await translateText(text, sender.lang, receiver.lang);
+    if (translated === text) return;
+
+    io.to(partnerSocketId).emit("message_translation", {
       original: text,
       translated,
       lang: receiver.lang,
